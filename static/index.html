@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hermes</title>
+  <link rel="stylesheet" href="/css/app.css" />
+</head>
+<body>
+  <canvas id="bg-canvas" aria-hidden="true"></canvas>
+
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark">✶</span>
+        <span class="brand-name">HERMES</span>
+      </div>
+      <div class="topbar-right">
+        <button id="bg-toggle" class="btn btn-sm" title="Switch background animation">▦ rain</button>
+        <span id="health-dot" class="health-dot" title="gateway status"></span>
+        <span id="health-text" class="health-text">checking…</span>
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- LEFT — Sessions + Jobs -->
+      <section class="col col-side">
+        <div class="side-block">
+          <div class="col-head">
+            <span class="col-num">01</span><h2 class="col-title">Sessions</h2>
+            <div class="col-tools">
+              <button id="chat-new" class="btn btn-accent btn-sm">+ New chat</button>
+              <button id="sessions-refresh" class="btn btn-sm" title="Refresh">⟳</button>
+            </div>
+          </div>
+          <div id="sessions-body" class="col-body"></div>
+        </div>
+        <div class="side-block">
+          <div class="col-head">
+            <span class="col-num">02</span><h2 class="col-title">Jobs</h2>
+            <div class="col-tools">
+              <button id="jobs-new" class="btn btn-sm">+</button>
+              <button id="jobs-refresh" class="btn btn-sm" title="Refresh">⟳</button>
+            </div>
+          </div>
+          <div id="jobs-body" class="col-body"></div>
+        </div>
+      </section>
+
+      <!-- CENTER — Chat -->
+      <section class="col col-chat">
+        <div class="col-head">
+          <span class="col-num">03</span><h2 class="col-title" id="chat-title">Chat</h2>
+          <div class="col-tools">
+            <button id="chat-model" class="btn btn-sm model-btn" title="Switch model (global)">⬡ <span id="chat-model-name">model…</span></button>
+          </div>
+        </div>
+        <div id="chat-thread" class="thread"></div>
+        <form id="chat-form" class="composer">
+          <textarea id="chat-input" class="composer-input" rows="1"
+            placeholder="Message Hermes…  (Enter to send · / for commands · Shift+Enter for newline)"></textarea>
+          <button id="chat-send" class="btn btn-accent" type="submit">Send</button>
+          <button id="chat-stop" class="btn btn-ghost" type="button" hidden>Stop</button>
+        </form>
+      </section>
+
+      <!-- RIGHT — Status -->
+      <aside class="col col-side">
+        <div class="side-block">
+          <div class="col-head">
+            <span class="col-num">04</span><h2 class="col-title">Status</h2>
+            <div class="col-tools">
+              <button id="status-refresh" class="btn btn-sm" title="Refresh">⟳</button>
+            </div>
+          </div>
+          <div id="status-body" class="col-body"></div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" hidden></div>
+
+  <script src="/js/bg.js"></script>
+  <script src="/js/md.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/chat.js"></script>
+  <script src="/js/modelpicker.js"></script>
+  <script src="/js/sessions.js"></script>
+  <script src="/js/jobs.js"></script>
+  <script src="/js/status.js"></script>
+  <script src="/js/router.js"></script>
+</body>
+</html>

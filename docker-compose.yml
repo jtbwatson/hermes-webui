@@ -1,0 +1,21 @@
+services:
+  hermes-web:
+    build: .
+    container_name: hermes-web
+    ports:
+      - "${HERMES_WEB_PORT:-8080}:8080"
+    environment:
+      # Reach the Hermes API server on the host (not 127.0.0.1 inside the container).
+      HERMES_API_BASE: ${HERMES_API_BASE:-http://host.docker.internal:8642}
+      HERMES_API_KEY: ${HERMES_API_KEY:-}
+      HERMES_ENV_FILE: ${HERMES_ENV_FILE:-/hermes/.env}
+      HERMES_HOME_DIR: ${HERMES_HOME_DIR:-/hermes/hermes-agent}
+      HERMES_VENV_PY: ${HERMES_VENV_PY:-/hermes/hermes-agent/venv/bin/python}
+      HERMES_WEB_HOST: 0.0.0.0
+      HERMES_WEB_PORT: 8080
+    volumes:
+      # API key, config.yaml, and Hermes checkout for the model picker.
+      - ${HERMES_DATA_DIR:-${HOME}/.hermes}:/hermes:rw
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped

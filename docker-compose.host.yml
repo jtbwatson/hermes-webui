@@ -1,0 +1,8 @@
+# Optional override: use the host network stack so 127.0.0.1:8642 is the
+# Hermes API on the Pi and the mounted Hermes venv python runs like on bare metal.
+services:
+  hermes-web:
+    network_mode: host
+    ports: !reset []
+    environment:
+      HERMES_API_BASE: ${HERMES_API_BASE:-http://127.0.0.1:8642}
