@@ -8,6 +8,7 @@ streaming uses Server-Sent Events (text/event-stream) passed straight through.
 from __future__ import annotations
 
 import os
+import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -168,15 +169,50 @@ async def proxy_health(request: Request, rest: str = ""):
 # Switches the GLOBAL model in ~/.hermes/config.yaml via Hermes' own code.
 # Affects all platforms (Telegram etc.), not just the web UI.
 
+
+def _model_admin_command() -> tuple[str, dict[str, str]] | tuple[None, dict[str, str]]:
+    """Resolve python + env for model_admin (Docker-friendly venv fallback)."""
+    home = Path(HERMES_HOME_DIR)
+    py = Path(HERMES_VENV_PY)
+    env: dict[str, str] = {}
+
+    if py.exists():
+        return str(py), env
+
+    # Host venv python often symlinks to /usr/bin/python3.11, which is absent
+    # inside slim containers. Use this process' interpreter + mounted site-packages.
+    site = home / "venv" / "lib" / f"python{sys.version_info.major}.{sys.version_info.minor}" / "site-packages"
+    if site.is_dir():
+        env["PYTHONPATH"] = os.pathsep.join([str(site), str(home)])
+        return sys.executable, env
+
+    return None, env
+
+
 async def _run_model_admin(*args: str) -> JSONResponse:
     import asyncio
     import json
-    if not Path(HERMES_VENV_PY).exists():
-        return JSONResponse({"error": f"Hermes venv python not found at {HERMES_VENV_PY}"}, status_code=503)
+
+    py, extra_env = _model_admin_command()
+    if not py:
+        return JSONResponse(
+            {"error": f"Hermes venv python not found at {HERMES_VENV_PY}"},
+            status_code=503,
+        )
+
+    proc_env = os.environ.copy()
+    if extra_env.get("PYTHONPATH"):
+        proc_env["PYTHONPATH"] = extra_env["PYTHONPATH"]
+    if os.getenv("HERMES_PYTHONPATH"):
+        proc_env["PYTHONPATH"] = os.pathsep.join(
+            filter(None, (os.getenv("HERMES_PYTHONPATH"), proc_env.get("PYTHONPATH")))
+        )
+
     try:
         proc = await asyncio.create_subprocess_exec(
-            HERMES_VENV_PY, MODEL_ADMIN, *args,
+            py, MODEL_ADMIN, *args,
             cwd=HERMES_HOME_DIR,
+            env=proc_env,
             stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE,
         )
         out, err = await asyncio.wait_for(proc.communicate(), timeout=60)
