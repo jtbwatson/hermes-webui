@@ -32,10 +32,26 @@ systemctl --user restart hermes-gateway
 
 Verify: `curl -s 127.0.0.1:8642/health/detailed`
 
-## Run
+## Run with Docker (recommended on the Pi)
+
+Keep the git repo under `~/Containers/hermes-webui` alongside your other
+containers:
 
 ```
-cd ~/hermes-web
+git clone git@github.com:jtbwatson/hermes-webui.git ~/Containers/hermes-webui
+cd ~/Containers/hermes-webui
+cp .env.example .env
+cp docker-compose.override.yml.example docker-compose.override.yml   # Pi / LAN
+docker compose up -d --build
+```
+
+Open `http://<pi-ip>:8080`. Update after changes: `git pull && docker compose up -d --build`.
+
+## Run without Docker
+
+```
+cd ~/Containers/hermes-webui
+python3 -m venv venv && ./venv/bin/pip install -r requirements.txt
 ./venv/bin/python server.py
 ```
 
@@ -59,7 +75,7 @@ Description=Hermes Web UI
 After=hermes-gateway.service
 
 [Service]
-ExecStart=%h/hermes-web/venv/bin/python %h/hermes-web/server.py
+ExecStart=%h/Containers/hermes-webui/venv/bin/python %h/Containers/hermes-webui/server.py
 Restart=on-failure
 
 [Install]

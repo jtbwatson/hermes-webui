@@ -1,0 +1,13 @@
+# Copy to docker-compose.override.yml for Pi / LAN deployment.
+# Compose loads this file automatically (it is gitignored).
+#
+#   cp docker-compose.override.yml.example docker-compose.override.yml
+#
+# Host networking lets the proxy reach 127.0.0.1:8642 and the model picker
+# use the mounted Hermes venv from ~/.hermes.
+services:
+  hermes-web:
+    network_mode: host
+    ports: !reset []
+    environment:
+      HERMES_API_BASE: ${HERMES_API_BASE:-http://127.0.0.1:8642}
